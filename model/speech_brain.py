@@ -6,8 +6,8 @@ import torchaudio
 import torch
 import numpy as np
 
-DATA_FOLDER_PATH = "/Users/alpermelkeli/Documents/SecuritySpeech/data"
-TEST_FILE_PATH = "/Users/alpermelkeli/Documents/SecuritySpeech/test.wav"
+DATA_FOLDER_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "../data"))
+TEST_FILE_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "../test.wav"))
 
 class SpeechBrain():
 

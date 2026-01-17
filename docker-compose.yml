@@ -1,0 +1,13 @@
+services:
+  app:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/app/data
+      # Mount pretrained models to avoid re-downloading them every time
+      - ./pretrained_models:/app/pretrained_models
+    env_file:
+      - .env
+    environment:
+      - HF_TOKEN=${HF_TOKEN}
