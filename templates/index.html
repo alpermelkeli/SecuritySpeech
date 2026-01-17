@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice Security Management Panel</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            color: #e4e4e4;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 30px 0;
+            border-bottom: 1px solid #3a3a5a;
+            margin-bottom: 30px;
+        }
+
+        header h1 {
+            color: #00d4ff;
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            color: #8888aa;
+        }
+
+        .status-bar {
+            background: #252545;
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #00ff88;
+        }
+
+        .status-dot.offline {
+            background: #ff4444;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+        }
+
+        .card {
+            background: #252545;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .card h2 {
+            color: #00d4ff;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card h2::before {
+            content: '';
+            width: 4px;
+            height: 20px;
+            background: #00d4ff;
+            border-radius: 2px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #aaaacc;
+            font-size: 0.9rem;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="file"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #3a3a5a;
+            border-radius: 8px;
+            background: #1a1a2e;
+            color: #e4e4e4;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #00d4ff;
+        }
+
+        input[type="file"] {
+            padding: 10px;
+            cursor: pointer;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: #3a3a5a;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #00d4ff;
+            cursor: pointer;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%);
+            color: #1a1a2e;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 212, 255, 0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ff4444 0%, #cc0000 100%);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(255, 68, 68, 0.4);
+        }
+
+        .btn-secondary {
+            background: #3a3a5a;
+            color: #e4e4e4;
+        }
+
+        .btn-secondary:hover {
+            background: #4a4a6a;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .speakers-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .speaker-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: #1a1a2e;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .speaker-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .speaker-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #1a1a2e;
+        }
+
+        .speaker-name {
+            font-weight: 600;
+        }
+
+        .speaker-samples {
+            font-size: 0.85rem;
+            color: #8888aa;
+        }
+
+        .speaker-status {
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .speaker-status.enrolled {
+            background: rgba(0, 255, 136, 0.2);
+            color: #00ff88;
+        }
+
+        .speaker-status.not-enrolled {
+            background: rgba(255, 170, 0, 0.2);
+            color: #ffaa00;
+        }
+
+        .threshold-display {
+            text-align: center;
+            margin: 15px 0;
+        }
+
+        .threshold-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #00d4ff;
+        }
+
+        .threshold-label {
+            color: #8888aa;
+            font-size: 0.9rem;
+        }
+
+        .result-box {
+            background: #1a1a2e;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .result-box.success {
+            border-left: 4px solid #00ff88;
+        }
+
+        .result-box.error {
+            border-left: 4px solid #ff4444;
+        }
+
+        .result-box.warning {
+            border-left: 4px solid #ffaa00;
+        }
+
+        .result-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .result-box.success .result-title {
+            color: #00ff88;
+        }
+
+        .result-box.error .result-title {
+            color: #ff4444;
+        }
+
+        .result-box.warning .result-title {
+            color: #ffaa00;
+        }
+
+        .scores-list {
+            margin-top: 15px;
+        }
+
+        .score-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #3a3a5a;
+        }
+
+        .score-item:last-child {
+            border-bottom: none;
+        }
+
+        .score-bar {
+            height: 6px;
+            background: #3a3a5a;
+            border-radius: 3px;
+            margin-top: 5px;
+            overflow: hidden;
+        }
+
+        .score-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00d4ff 0%, #00ff88 100%);
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #3a3a5a;
+            border-top-color: #00d4ff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            transform: translateX(120%);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast.success {
+            background: #00ff88;
+            color: #1a1a2e;
+        }
+
+        .toast.error {
+            background: #ff4444;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 0.85rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #8888aa;
+        }
+
+        .empty-state svg {
+            width: 60px;
+            height: 60px;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .status-bar {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Voice Security Management Panel</h1>
+            <p>Manage speakers, configure thresholds, and test voice recognition</p>
+        </header>
+
+        <div class="status-bar">
+            <div class="status-item">
+                <div class="status-dot" id="modelStatus"></div>
+                <span>Model: <strong id="modelStatusText">Loading...</strong></span>
+            </div>
+            <div class="status-item">
+                <span>Enrolled Speakers: <strong id="enrolledCount">-</strong></span>
+            </div>
+            <div class="status-item">
+                <span>Current Threshold: <strong id="currentThreshold">-</strong></span>
+            </div>
+            <button class="btn btn-secondary btn-small" onclick="refreshStatus()">Refresh</button>
+        </div>
+
+        <div class="grid">
+            <!-- Speakers List Card -->
+            <div class="card">
+                <h2>Enrolled Speakers</h2>
+                <div class="speakers-list" id="speakersList">
+                    <div class="loading active" id="speakersLoading">
+                        <div class="spinner"></div>
+                        <p>Loading speakers...</p>
+                    </div>
+                </div>
+                <div style="margin-top: 20px;">
+                    <button class="btn btn-secondary" onclick="reEnrollSpeakers()">Re-enroll All Speakers</button>
+                </div>
+            </div>
+
+            <!-- Add Speaker Card -->
+            <div class="card">
+                <h2>Add New Speaker</h2>
+                <form id="addSpeakerForm" onsubmit="addSpeaker(event)">
+                    <div class="form-group">
+                        <label for="speakerName">Speaker Name</label>
+                        <input type="text" id="speakerName" placeholder="e.g., speaker_john" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="audioFiles">Voice Samples (WAV files)</label>
+                        <input type="file" id="audioFiles" accept=".wav" multiple required>
+                        <small style="color: #8888aa; display: block; margin-top: 5px;">
+                            Select one or more WAV audio files for enrollment
+                        </small>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add Speaker</button>
+                </form>
+            </div>
+
+            <!-- Threshold Settings Card -->
+            <div class="card">
+                <h2>Threshold Settings</h2>
+                <div class="threshold-display">
+                    <div class="threshold-value" id="thresholdDisplay">65%</div>
+                    <div class="threshold-label">Recognition Threshold</div>
+                </div>
+                <div class="form-group">
+                    <input type="range" id="thresholdSlider" min="0" max="100" value="65"
+                           oninput="updateThresholdDisplay(this.value)">
+                    <div style="display: flex; justify-content: space-between; color: #8888aa; font-size: 0.8rem; margin-top: 5px;">
+                        <span>0% (Accept all)</span>
+                        <span>100% (Strict)</span>
+                    </div>
+                </div>
+                <button class="btn btn-primary" onclick="saveThreshold()">Save Threshold</button>
+                <p style="margin-top: 15px; font-size: 0.85rem; color: #8888aa;">
+                    Higher threshold = stricter matching (fewer false positives)<br>
+                    Lower threshold = more lenient (fewer false negatives)
+                </p>
+            </div>
+
+            <!-- Voice Identification Card -->
+            <div class="card">
+                <h2>Test Voice Identification</h2>
+                <form id="identifyForm" onsubmit="identifySpeaker(event)">
+                    <div class="form-group">
+                        <label for="testAudio">Upload Test Audio (WAV)</label>
+                        <input type="file" id="testAudio" accept=".wav" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary" id="identifyBtn">Identify Speaker</button>
+                </form>
+                <div id="identifyResult"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        const API_BASE = '';
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            refreshStatus();
+            loadSpeakers();
+            loadThreshold();
+        });
+
+        // Show toast notification
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast ${type} show`;
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Refresh system status
+        async function refreshStatus() {
+            try {
+                const response = await fetch(`${API_BASE}/api/status`);
+                const data = await response.json();
+
+                document.getElementById('modelStatus').className =
+                    data.model_loaded ? 'status-dot' : 'status-dot offline';
+                document.getElementById('modelStatusText').textContent =
+                    data.model_loaded ? 'Online' : 'Offline';
+                document.getElementById('enrolledCount').textContent = data.enrolled_speakers;
+                document.getElementById('currentThreshold').textContent =
+                    (data.threshold * 100).toFixed(0) + '%';
+            } catch (error) {
+                console.error('Error fetching status:', error);
+                document.getElementById('modelStatus').className = 'status-dot offline';
+                document.getElementById('modelStatusText').textContent = 'Error';
+            }
+        }
+
+        // Load speakers list
+        async function loadSpeakers() {
+            const container = document.getElementById('speakersList');
+
+            try {
+                const response = await fetch(`${API_BASE}/api/speakers`);
+                const data = await response.json();
+
+                if (data.speakers.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"></path>
+                                <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                                <line x1="12" y1="19" x2="12" y2="22"></line>
+                            </svg>
+                            <p>No speakers enrolled yet</p>
+                            <p style="font-size: 0.85rem;">Add a speaker using the form</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = data.speakers.map(speaker => `
+                    <div class="speaker-item">
+                        <div class="speaker-info">
+                            <div class="speaker-avatar">${speaker.name.charAt(0).toUpperCase()}</div>
+                            <div>
+                                <div class="speaker-name">${speaker.name}</div>
+                                <div class="speaker-samples">${speaker.sample_count} sample(s)</div>
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span class="speaker-status ${speaker.enrolled ? 'enrolled' : 'not-enrolled'}">
+                                ${speaker.enrolled ? 'Enrolled' : 'Not Enrolled'}
+                            </span>
+                            <button class="btn btn-danger btn-small" onclick="deleteSpeaker('${speaker.name}')">
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading speakers:', error);
+                container.innerHTML = '<p style="color: #ff4444; text-align: center;">Error loading speakers</p>';
+            }
+        }
+
+        // Add new speaker
+        async function addSpeaker(event) {
+            event.preventDefault();
+
+            const speakerName = document.getElementById('speakerName').value;
+            const audioFiles = document.getElementById('audioFiles').files;
+
+            if (!speakerName || audioFiles.length === 0) {
+                showToast('Please provide speaker name and audio files', 'error');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('speaker_name', speakerName);
+            for (let file of audioFiles) {
+                formData.append('audio_files', file);
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/api/speakers`, {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    showToast(`Speaker "${speakerName}" added successfully!`);
+                    document.getElementById('addSpeakerForm').reset();
+                    loadSpeakers();
+                    refreshStatus();
+                } else {
+                    showToast(data.error || 'Failed to add speaker', 'error');
+                }
+            } catch (error) {
+                console.error('Error adding speaker:', error);
+                showToast('Error adding speaker', 'error');
+            }
+        }
+
+        // Delete speaker
+        async function deleteSpeaker(speakerName) {
+            if (!confirm(`Are you sure you want to delete speaker "${speakerName}"?`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/api/speakers/${encodeURIComponent(speakerName)}`, {
+                    method: 'DELETE'
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    showToast(`Speaker "${speakerName}" deleted successfully!`);
+                    loadSpeakers();
+                    refreshStatus();
+                } else {
+                    showToast(data.error || 'Failed to delete speaker', 'error');
+                }
+            } catch (error) {
+                console.error('Error deleting speaker:', error);
+                showToast('Error deleting speaker', 'error');
+            }
+        }
+
+        // Re-enroll all speakers
+        async function reEnrollSpeakers() {
+            try {
+                const response = await fetch(`${API_BASE}/api/enroll`, {
+                    method: 'POST'
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    showToast(`Re-enrolled ${data.enrolled_count} speaker(s) successfully!`);
+                    loadSpeakers();
+                    refreshStatus();
+                } else {
+                    showToast('Failed to re-enroll speakers', 'error');
+                }
+            } catch (error) {
+                console.error('Error re-enrolling speakers:', error);
+                showToast('Error re-enrolling speakers', 'error');
+            }
+        }
+
+        // Load current threshold
+        async function loadThreshold() {
+            try {
+                const response = await fetch(`${API_BASE}/api/threshold`);
+                const data = await response.json();
+
+                if (data.success) {
+                    const percent = data.threshold_percent;
+                    document.getElementById('thresholdSlider').value = percent;
+                    document.getElementById('thresholdDisplay').textContent = percent + '%';
+                }
+            } catch (error) {
+                console.error('Error loading threshold:', error);
+            }
+        }
+
+        // Update threshold display
+        function updateThresholdDisplay(value) {
+            document.getElementById('thresholdDisplay').textContent = value + '%';
+        }
+
+        // Save threshold
+        async function saveThreshold() {
+            const value = document.getElementById('thresholdSlider').value;
+            const threshold = value / 100;
+
+            try {
+                const response = await fetch(`${API_BASE}/api/threshold`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ threshold })
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    showToast(`Threshold set to ${value}%`);
+                    refreshStatus();
+                } else {
+                    showToast(data.error || 'Failed to save threshold', 'error');
+                }
+            } catch (error) {
+                console.error('Error saving threshold:', error);
+                showToast('Error saving threshold', 'error');
+            }
+        }
+
+        // Identify speaker
+        async function identifySpeaker(event) {
+            event.preventDefault();
+
+            const audioFile = document.getElementById('testAudio').files[0];
+            if (!audioFile) {
+                showToast('Please select an audio file', 'error');
+                return;
+            }
+
+            const resultDiv = document.getElementById('identifyResult');
+            resultDiv.innerHTML = '<div class="loading active"><div class="spinner"></div><p>Analyzing voice...</p></div>';
+
+            const formData = new FormData();
+            formData.append('audio_file', audioFile);
+
+            try {
+                const response = await fetch(`${API_BASE}/api/identify`, {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    const result = data.result;
+                    const isRecognized = result.status === 'recognized';
+
+                    let scoresHtml = '';
+                    if (result.all_scores) {
+                        scoresHtml = `
+                            <div class="scores-list">
+                                <h4 style="margin-bottom: 10px; color: #aaaacc;">All Scores:</h4>
+                                ${Object.entries(result.all_scores)
+                                    .sort((a, b) => b[1] - a[1])
+                                    .map(([name, score]) => `
+                                        <div class="score-item">
+                                            <span>${name}</span>
+                                            <span>${score}%</span>
+                                        </div>
+                                        <div class="score-bar">
+                                            <div class="score-bar-fill" style="width: ${score}%"></div>
+                                        </div>
+                                    `).join('')}
+                            </div>
+                        `;
+                    }
+
+                    resultDiv.innerHTML = `
+                        <div class="result-box ${isRecognized ? 'success' : 'warning'}">
+                            <div class="result-title">
+                                ${isRecognized ? 'Speaker Recognized!' : 'Speaker Not Recognized'}
+                            </div>
+                            <p>
+                                ${isRecognized
+                                    ? `Identified as: <strong>${result.name}</strong>`
+                                    : 'No match found above threshold'}
+                            </p>
+                            <p>Confidence: <strong>${result.confidence}%</strong></p>
+                            ${scoresHtml}
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="result-box error">
+                            <div class="result-title">Error</div>
+                            <p>${data.error || 'Failed to identify speaker'}</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error identifying speaker:', error);
+                resultDiv.innerHTML = `
+                    <div class="result-box error">
+                        <div class="result-title">Error</div>
+                        <p>Failed to process audio file</p>
+                    </div>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>
