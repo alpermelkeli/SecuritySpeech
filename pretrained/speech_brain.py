@@ -7,7 +7,7 @@ import torch
 import numpy as np
 
 DATA_FOLDER_PATH = "/Users/alpermelkeli/Documents/SecuritySpeech/data"
-TEST_FILE_PATH = "/Users/alpermelkeli/Documents/SecuritySpeech/sample_4.wav"
+TEST_FILE_PATH = "/Users/alpermelkeli/Documents/SecuritySpeech/test.wav"
 
 class SpeechBrain():
 
